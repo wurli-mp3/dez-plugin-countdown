@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEZ SECRET PLUGIN COUNTDOWN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #000;
+            color: #0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                url('interface_straight.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        .scanline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 255, 0, 0.03) 0%,
+                rgba(0, 255, 0, 0) 10%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            animation: scanline 8s linear infinite;
+            z-index: 9999;
+        }
+        
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
+        
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #f0f;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #0ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        
+        .countdown-box {
+            background-color: rgba(0, 15, 0, 0.3);
+            border: 1px solid #0f0;
+            box-shadow: 0 0 10px #0f0, inset 0 0 10px #0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(0, 255, 0, 0) 0%,
+                rgba(0, 255, 0, 0) 45%,
+                rgba(0, 255, 0, 0.3) 50%,
+                rgba(0, 255, 0, 0) 55%,
+                rgba(0, 255, 0, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        .pixel {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #0f0;
+            opacity: 0;
+            position: absolute;
+            animation: pixel-fade 1s forwards;
+        }
+        
+        .debug-btn {
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 1px solid #f00;
+            color: #f00;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 100;
+        }
+        
+        .debug-btn:hover {
+            background-color: rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 10px #f00;
+        }
+        
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            top: -10px;
+            animation: confetti-fall 5s linear forwards;
+            transform: translateY(-100%);
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(32px, 9999px, 78px, 0); }
+            10% { clip: rect(8px, 9999px, 44px, 0); }
+            20% { clip: rect(45px, 9999px, 99px, 0); }
+            30% { clip: rect(23px, 9999px, 85px, 0); }
+            40% { clip: rect(60px, 9999px, 92px, 0); }
+            50% { clip: rect(34px, 9999px, 81px, 0); }
+            60% { clip: rect(70px, 9999px, 103px, 0); }
+            70% { clip: rect(52px, 9999px, 97px, 0); }
+            80% { clip: rect(30px, 9999px, 84px, 0); }
+            90% { clip: rect(88px, 9999px, 129px, 0); }
+            100% { clip: rect(68px, 9999px, 113px, 0); }
+        }
+        
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 119px, 0); }
+            10% { clip: rect(79px, 9999px, 132px, 0); }
+            20% { clip: rect(43px, 9999px, 96px, 0); }
+            30% { clip: rect(58px, 9999px, 111px, 0); }
+            40% { clip: rect(33px, 9999px, 86px, 0); }
+            50% { clip: rect(13px, 9999px, 66px, 0); }
+            60% { clip: rect(77px, 9999px, 130px, 0); }
+            70% { clip: rect(63px, 9999px, 116px, 0); }
+            80% { clip: rect(39px, 9999px, 92px, 0); }
+            90% { clip: rect(88px, 9999px, 141px, 0); }
+            100% { clip: rect(82px, 9999px, 135px, 0); }
+        }
+        
+        @keyframes shine {
+            0% { transform: rotate(30deg) translate(-30%, -30%); }
+            100% { transform: rotate(30deg) translate(30%, 30%); }
+        }
+        
+        @keyframes pixel-fade {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+        
+        @keyframes flicker {
+            0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+                opacity: 1;
+            }
+            20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+                opacity: 0.2;
+            }
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100%) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .flicker {
+            animation: flicker 3s linear infinite;
+        }
+        
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #0f0;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* New celebration styles */
+        .celebration-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            z-index: 9999;
+            text-shadow: 0 0 10px #0f0;
+            animation: pulse 1s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .countdown-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            
+            .countdown-box {
+                padding: 0.75rem;
+            }
+            
+            .countdown-value {
+                font-size: 1.5rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .countdown-label {
+                font-size: 0.75rem;
+            }
+            
+            .main-title {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .celebration-text {
+                font-size: 1.5rem;
+            }
+            
+            .top-section {
+                padding-top: 4rem; /* adds spacing from very top */
+                padding-bottom: 2rem;
+            }
+        }
+        
+        
+    </style>
+</head>
+<body class="text-green-400">
+    <div class="scanline"></div>
+    <div class="celebration" id="celebration"></div>
+    
+    <div class="container mx-auto px-4 py-4 md:py-16 min-h-screen flex flex-col justify-center relative pb-24">
+       <div class="top-section text-center mb-8 md:mb-12">
+            <!-- Title -->
+            <div class="mb-4 md:mb-8">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-green-300 glitch flicker" data-text="DEZ SECRET PLUGIN">
+                    DEZ SECRET PLUGIN
+                </h1>
+            </div>
+            <!-- Header -->
+            <header>
+                <h2 class="text-2xl md:text-4xl font-bold mb-2 md:mb-4 glitch flicker" data-text="SYSTEM COUNTDOWN INITIALIZED">
+                    SYSTEM COUNTDOWN INITIALIZED
+                </h2>
+                <p class="text-base md:text-xl lg:text-2xl">
+                    TARGET DATE: <span class="text-green-300">MAY 1, 2025 00:00:00</span>
+                </p>
+                <div class="mt-2 md:mt-4 text-xs md:text-sm lg:text-base">
+                    <span class="inline-block mr-2"> STATUS:</span>
+                    <span class="text-green-300">ACTIVE</span>
+                    <span class="terminal-cursor ml-1"></span>
+                </div>
+            </header>
+        </div>
+        
+        <main class="flex-grow flex items-center justify-center">
+            <div class="grid grid-cols-4 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl mx-auto px-2">
+                <!-- Days -->
+                <div class="countdown-box rounded-lg p-6 md:p-10 text-center relative">
+                    <div class="text-5xl md:text-7xl lg:text-8xl font-mono font-bold mb-2 md:mb-4 glitch" id="days" data-text="00">00</div>
+                    <div class="text-sm md:text-lg lg:text-xl tracking-widest">DAYS</div>
+                </div>
+
+                <!-- Hours -->
+                <div class="countdown-box rounded-lg p-6 md:p-10 text-center relative">
+                    <div class="text-5xl md:text-7xl lg:text-8xl font-mono font-bold mb-2 md:mb-4 glitch" id="hours" data-text="00">00</div>
+                    <div class="text-sm md:text-lg lg:text-xl tracking-widest">HOURS</div>
+                </div>
+
+                <!-- Minutes -->
+                <div class="countdown-box rounded-lg p-6 md:p-10 text-center relative">
+                    <div class="text-5xl md:text-7xl lg:text-8xl font-mono font-bold mb-2 md:mb-4 glitch" id="minutes" data-text="00">00</div>
+                    <div class="text-sm md:text-lg lg:text-xl tracking-widest">MINUTES</div>
+                </div>
+
+                <!-- Seconds -->
+                <div class="countdown-box rounded-lg p-6 md:p-10 text-center relative">
+                    <div class="text-5xl md:text-7xl lg:text-8xl font-mono font-bold mb-2 md:mb-4 glitch" id="seconds" data-text="00">00</div>
+                    <div class="text-sm md:text-lg lg:text-xl tracking-widest">SECONDS</div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-auto pt-4 md:pt-8 text-xs opacity-60">
+            <div class="border-t border-green-800 pt-2 md:pt-4">
+                SYSTEM OPERATOR: <a href="https://instagram.com/wurli.mp3" target="_blank" 
+   class="text-green-300 font-semibold underline hover:text-green-100 hover:scale-105 transform transition duration-200 ease-in-out cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1 rounded">@wurli.mp3</a>
+                <span class="terminal-cursor ml-1"></span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Set the target date (May 1st 2025 at midnight)
+        let targetDate = new Date('May 1, 2025 00:00:00').getTime();
+        let countdownInterval;
+        
+        // Function to start the countdown
+        function startCountdown() {
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
+        }
+        
+        // Function to update the countdown
+        function updateCountdown() {
+            // Get current date and time
+            const now = new Date().getTime();
+            
+            // Calculate the difference between now and target date
+            const distance = targetDate - now;
+            
+            // If countdown is over
+            if (distance < 0) {
+                endCountdown();
+                return;
+            }
+            
+            // Time calculations
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            // Display the result with animation
+            updateWithGlitch('days', days);
+            updateWithGlitch('hours', hours);
+            updateWithGlitch('minutes', minutes);
+            updateWithGlitch('seconds', seconds);
+        }
+        
+        // Function to end the countdown with celebration
+        function endCountdown() {
+            clearInterval(countdownInterval);
+            
+            // Update display
+            document.getElementById('days').textContent = '00';
+            document.getElementById('hours').textContent = '00';
+            document.getElementById('minutes').textContent = '00';
+            document.getElementById('seconds').textContent = '00';
+            
+            document.querySelector('main').remove();
+
+            
+            // Change header text
+            const header = document.querySelector('h2');
+            header.textContent = 'SYSTEM COUNTDOWN COMPLETE';
+            header.setAttribute('data-text', 'SYSTEM COUNTDOWN COMPLETE');
+            header.classList.add('text-red-400', 'text-3xl', 'md:text-5xl');
+            
+            // Change target date text
+            document.querySelector('p').textContent = 'TARGET DATE REACHED';
+            
+            // Create celebration elements
+            const celebration = document.getElementById('celebration');
+            celebration.style.display = 'block';
+            
+            // Create celebration text
+            const celebrationText = document.createElement('div');
+            celebrationText.className = 'celebration-text';
+            celebrationText.innerHTML = `
+                <div class="text-green-400 mb-4">COUNTDOWN COMPLETE!</div>
+                <div class="text-red-400 text-4xl md:text-6xl">DEZ SECRET PLUGIN</div>
+                <div class="text-yellow-300 text-2xl md:text-4xl mt-4">ACTIVATED</div>
+            `;
+            celebration.appendChild(celebrationText);
+            
+            // Create confetti
+            createConfetti();
+            
+            // Create completion message
+            const completionMessage = document.createElement('div');
+            completionMessage.className = 'text-center text-green-300 text-xl md:text-3xl mt-8 font-bold';
+            completionMessage.innerHTML = `
+                <div class="mb-4">> COUNTDOWN COMPLETE!</div>
+                <div class="text-2xl md:text-4xl text-red-400 animate-pulse">DEZ SECRET PLUGIN ACTIVATED</div>
+                <div class="mt-4 text-sm md:text-base text-yellow-300">> SYSTEM OVERRIDE: ALL ACCESS GRANTED</div>
+            `;
+            
+            // Insert after countdown
+            const main = document.querySelector('main');
+            main.appendChild(completionMessage);
+            
+            // Add pulsing background effect
+            document.body.style.animation = 'pulseBackground 2s infinite alternate';
+            
+            // Create fireworks
+            createFireworks();
+        }
+        
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            const celebration = document.getElementById('celebration');
+
+            for (let i = 0; i < 30; i++) {  // Reduced from 150 to 30
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+
+                // Random position and color
+                const left = Math.random() * 100;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 8 + 4;
+                const delay = Math.random() * 2;
+                const duration = Math.random() * 2 + 2;
+
+                confetti.style.left = `${left}%`;
+                confetti.style.backgroundColor = color;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.animationDelay = `${delay}s`;
+                confetti.style.animationDuration = `${duration}s`;
+                confetti.style.opacity = 0;  // Start invisible
+
+                // Avoid "flash" at the top by hiding until animation starts
+                setTimeout(() => {
+                    confetti.style.opacity = 1;
+                }, delay * 1000);
+
+                // Optional: randomize shapes
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                } else {
+                    confetti.style.transform += ' rotate(45deg)';
+                }
+
+                celebration.appendChild(confetti);
+
+                // Remove confetti after animation ends
+                setTimeout(() => {
+                    confetti.remove();
+                }, (duration + delay) * 1000);
+            }
+        }
+
+// Launch confetti every 800ms, stop after 5s (reduced duration and calls)
+const confettiInterval = setInterval(createConfetti, 800);
+setTimeout(() => clearInterval(confettiInterval), 5000);
+        
+        // Function to create fireworks
+function createFireworks() {
+    const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+
+    function launchFirework() {
+        const firework = document.createElement('div');
+        firework.style.position = 'fixed';
+        firework.style.width = '5px';
+        firework.style.height = '5px';
+        firework.style.borderRadius = '50%';
+        firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        firework.style.zIndex = '9997';
+
+        // Random position
+        const left = Math.random() * 100; 
+        firework.style.left = `${left}%`;
+        firework.style.top = '100%';
+
+        document.body.appendChild(firework);
+
+        // Launch animation
+        const animation = firework.animate([
+            { top: '100%', opacity: 1 },
+            { top: `${Math.random() * 30 + 10}%`, opacity: 1 }
+        ], {
+            duration: 1000,
+            easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+        });
+
+        animation.onfinish = () => {
+            // Explode
+            const topPosition = parseFloat(firework.style.top);
+            firework.remove();
+            createExplosion(left, topPosition);
+        };
+    }
+
+        function createExplosion(left, top) {
+            const particles = 30;
+
+            for (let i = 0; i < particles; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.width = '4px';
+                particle.style.height = '4px';
+                particle.style.borderRadius = '50%';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.zIndex = '9997';
+                particle.style.left = `${left}%`;
+                particle.style.top = `${top}%`;
+
+                document.body.appendChild(particle);
+
+                // Random angle and distance
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                const duration = Math.random() * 1000 + 500;
+
+                // Animate
+                particle.animate([
+                    { 
+                        transform: 'translate(0, 0) scale(1)',
+                        opacity: 1 
+                    },
+                    { 
+                        transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
+                        opacity: 0 
+                    }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                });
+
+                // Remove the particle after the animation
+                setTimeout(() => {
+                    particle.remove();
+                }, duration);
+            }
+        }
+
+        // Launch fireworks periodically
+        const fireworkInterval = setInterval(launchFirework, 800);
+
+        // Stop after 10 seconds
+        setTimeout(() => {
+            clearInterval(fireworkInterval);
+        }, 10000);
+    }
+        
+        // Function to update with glitch animation
+        function updateWithGlitch(elementId, newValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent);
+            
+            if (currentValue !== newValue) {
+                // Add glitch effect
+                element.classList.add('glitch');
+                
+                // Create pixel explosion effect
+                createPixelExplosion(element);
+                
+                // Update value after a delay to sync with animation
+                setTimeout(() => {
+                    const formattedValue = newValue.toString().padStart(2, '0');
+                    element.textContent = formattedValue;
+                    element.setAttribute('data-text', formattedValue);
+                    
+                    // Remove glitch class after animation completes
+                    setTimeout(() => {
+                        element.classList.remove('glitch');
+                    }, 500);
+                }, 300);
+            }
+        }
+        
+        // Function to create pixel explosion effect
+        function createPixelExplosion(element) {
+            const rect = element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            for (let i = 0; i < 20; i++) {
+                const pixel = document.createElement('div');
+                pixel.classList.add('pixel');
+                
+                // Random position around the element
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 50 + 20;
+                const x = centerX + Math.cos(angle) * distance;
+                const y = centerY + Math.sin(angle) * distance;
+                
+                pixel.style.left = `${x}px`;
+                pixel.style.top = `${y}px`;
+                pixel.style.animationDelay = `${Math.random() * 0.5}s`;
+                
+                document.body.appendChild(pixel);
+                
+                // Remove pixel after animation
+                setTimeout(() => {
+                    pixel.remove();
+                }, 1000);
+            }
+        }
+        
+        // Start the countdown
+        startCountdown();
+    </script>
+</body>
+</html>
